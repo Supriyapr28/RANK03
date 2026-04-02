@@ -1,60 +1,89 @@
 #include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <stdlib.h> // for atoi
 
-int is_safe(int *positions, int current_col, int current_row)
+static int	is_safe(int *pos, int col, int row)
 {
-	//starts from col 0 and checks all previously placed queens to see if the current position is safe
-	for (int prev_col = 0; prev_col < current_col; prev_col++)
+	int i;
+
+	i = 0;
+	while (i < col)
 	{
-		int prev_row = positions[prev_col];
-		// Check if the current position is in the same row or diagonal as any previously placed queen
-		//if condition true there is a conflict and we return 0 (not safe)
-		if (prev_row == current_row || // check same row
-			prev_row - prev_col == current_row - current_col || //check main diagonal
-			prev_row + prev_col == current_row + current_col)  //check anti-diagonal
-			return 0;
+		int prow = pos[i];
+		if (prow == row ||
+			prow - i == row - col ||
+			prow + i == row + col)
+			return (0);
+		i++;
 	}
-	return 1;
+	return (1);
 }
 
-void solve(int *positions, int col, int n)
+static void	write_int(int n)
+{
+	char buf[12];
+	int  i;
+
+	if (n == 0)
+	{
+		write(1, "0", 1);
+		return ;
+	}
+	i = 0;
+	while (n > 0)
+	{
+		buf[i++] = (char)('0' + (n % 10));
+		n /= 10;
+	}
+	while (--i >= 0)
+		write(1, &buf[i], 1);
+}
+
+static void	print_solution(int *pos, int n)
+{
+	int i;
+
+	i = 0;
+	while (i < n)
+	{
+		if (i > 0)
+			write(1, " ", 1);
+		write_int(pos[i]);
+		i++;
+	}
+	write(1, "\n", 1);
+}
+
+static void	solve(int *pos, int col, int n)
 {
 	if (col == n)
 	{
-		int i = 0;
-		while(i < n)
-		{
-			if (i > 0) // Print space before the number, but not before the first one
-				printf(" ");
-			printf("%d", positions[i]);
-			i++;
-		}
-		printf("\n");
-		return;
+		print_solution(pos, n);
+		return ;
 	}
 	int row = 0;
-	while(row < n)
+	while (row < n)
 	{
-		if(is_safe(positions, col, row))
+		if (is_safe(pos, col, row))
 		{
-			positions[col] = row;
-			solve(positions, col + 1, n);
+			pos[col] = row;
+			solve(pos, col + 1, n);
 		}
 		row++;
 	}
 }
 
-int main(int ac, char **av)
+int	main(int ac, char **av)
 {
-	if(ac == 2 && av[1][0] != '-')
-	{
-		int n = atoi(av[1]);// convert string to integer
-		int *q_positions = malloc(sizeof(int) * n);//arr to store q positions
-		if (!q_positions)
-			return 1;
-		solve(q_positions, 0, n);
-		free(q_positions);
-	}
-	return 0;
+	if (ac != 2 || av[1][0] == '-')
+		return (1);
+	int n = atoi(av[1]);
+	if (n <= 0)
+		return (0);
+	int pos[n];
+	int i = 0;
+	while (i < n)
+		pos[i++] = 0;
+	solve(pos, 0, n);
+	return (0);
 }
+

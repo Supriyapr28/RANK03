@@ -85,38 +85,25 @@ void find_subsets(int target, int index, int *nums, int n, int *subset, int sel_
         printf("\n"); 
         return;
     }
-
     if (index == n) 
         return;
-
-    // Include the current number
     subset[sel_size] = nums[index];
     find_subsets(target - nums[index], index + 1, nums, n, subset, sel_size + 1);
-
-    // Exclude the current number
     find_subsets(target, index + 1, nums, n, subset, sel_size);
 }
 
-int main(int argc, char **argv) {
-    if (argc < 3) {
+int main(int argc, char **argv)
+ {
+    if (argc < 3) 
         return (1);
-    }
-
     int target = atoi(argv[1]);
     int n = argc - 2;
-
-    if (n <= 0) {
+    if (n <= 0) 
         return 0;
-    }
-
     int nums[n];
     int subset[n];
-
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n; i++) 
         nums[i] = atoi(argv[i + 2]);
-    }
-
     find_subsets(target, 0, nums, n, subset, 0);
-
     return 0;
 }

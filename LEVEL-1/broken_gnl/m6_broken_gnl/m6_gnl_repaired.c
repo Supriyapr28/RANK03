@@ -1,3 +1,4 @@
+//sup soln- didnt clear by tester
 #include "gnl.h"
 
 // Helper: Standard string length

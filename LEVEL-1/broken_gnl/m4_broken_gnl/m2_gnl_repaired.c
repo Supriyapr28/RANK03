@@ -1,3 +1,5 @@
+//has bug -Works in normal cases, but on read(fd, ...) == -1 
+//it returns NULL without freeing a partially built ret, so it leaks memory on error.
 #include "gnl.h"
 
 char	*ft_strchr(char *s, int c)

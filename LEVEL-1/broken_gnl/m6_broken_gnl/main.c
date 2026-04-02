@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <fcntl.h>
+#include <string.h>
 #include "gnl.h" // Or include your header if you have one
 
 int main(int argc, char **argv)
@@ -28,8 +29,8 @@ int main(int argc, char **argv)
         printf("Line [%02d]: %s", line_count++, line);
         
         // Safety: If the line doesn't end in \n, add one for display clarity
-        // if (line[ft_strlen(line) - 1] != '\n')
-        //     printf("\n[EOF reached - no newline]");
+        if (line[strlen(line) - 1] != '\n')
+            printf("\n");//[EOF reached - no newline]
         
         free(line); // Critical: Avoid memory leaks!
     }

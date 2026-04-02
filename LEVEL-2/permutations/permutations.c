@@ -1,18 +1,19 @@
 #include <unistd.h>
-#include <stdlib.h>
-#include <stdio.h>
+
+int	ft_strlen(char *s)
+{
+	int len = 0;
+	while (s[len])
+		len++;
+	return (len);
+}
 
 void	ft_sort(char *s)
 {
-	int		i;
-	int		j;
-	char	tmp;
-
-	i = 0;
-	while (s[i])
+	char tmp;
+	for (int i = 0; s[i]; i++)
 	{
-		j = i + 1;
-		while (s[j])
+		for (int j = i + 1; s[j]; j++)
 		{
 			if (s[i] > s[j])
 			{
@@ -20,31 +21,26 @@ void	ft_sort(char *s)
 				s[i] = s[j];
 				s[j] = tmp;
 			}
-			j++;
 		}
-		i++;
 	}
 }
 
-void	ft_solve(char *str, int *used, char *perm, int perm_idx, int len)
+void	permute(char *src, int len, int *used, char *perm, int idx)
 {
-	if (perm_idx == len)
+	if (idx == len)
 	{
-		int	i = 0;
-		while (perm[i])
-			i++;
-		write(1, perm, i);
+		write(1, perm, len);
 		write(1, "\n", 1);
 		return ;
 	}
-	int	i = 0;
+	int i = 0;
 	while (i < len)
 	{
-		if (used[i] == 0)
+		if (!used[i])
 		{
 			used[i] = 1;
-			perm[perm_idx] = str[i];
-			ft_solve(str, used, perm, perm_idx + 1, len);
+			perm[idx] = src[i];
+			permute(src, len, used, perm, idx + 1);
 			used[i] = 0;
 		}
 		i++;
@@ -53,43 +49,97 @@ void	ft_solve(char *str, int *used, char *perm, int perm_idx, int len)
 
 int	main(int argc, char **argv)
 {
-	int		len;
-	int		*used;
-	char	*perm;
-
 	if (argc != 2)
 		return (1);
-	len = 0;
-	while (argv[1][len])
-		len++;
+	int	len = ft_strlen(argv[1]);
+	if (len <= 0)
+		return (0);
 	ft_sort(argv[1]);
-	used = (int *)calloc(len, sizeof(int));
-	perm = (char *)calloc(len + 1, sizeof(char));
-	if (!used || !perm)
-		return (1);
-	ft_solve(argv[1], used, perm, 0, len);
-	free(used);
-	free(perm);
+	// VLA on the stack instead of malloc
+	int used[len];
+	char perm[len + 1];
+	int i = 0;
+	while (i < len)
+		used[i++] = 0;
+	perm[len] = '\0';
+	permute(argv[1], len, used, perm, 0);
 	return (0);
 }
 
-/*Recursive tree for input "abc":
-                            START (perm="", used={0,0,0})
-                                       |
-          ---------------------------------------------------------
-          |                            |                          |
-    Pick 'a' (i=0)               Pick 'b' (i=1)             Pick 'c' (i=2)
-    (perm="a", used={1,0,0})     (perm="b", used={0,1,0})   (perm="c", used={0,0,1})
-          |                            |                          |
-    -------------                -------------              -------------
-    |           |                |           |              |           |
- Pick 'b'    Pick 'c'         Pick 'a'    Pick 'c'       Pick 'a'    Pick 'b'
- (perm="ab") (perm="ac")      (perm="ba") (perm="bc")    (perm="ca") (perm="cb")
-    |           |                |           |              |           |
-    |           |                |           |              |           |
- Pick 'c'    Pick 'b'         Pick 'c'    Pick 'a'       Pick 'b'    Pick 'a'
- (perm="abc")(perm="acb")     (perm="bac")(perm="bca")   (perm="cab")(perm="cba")
-    |           |                |           |              |           |
-  PRINT       PRINT            PRINT       PRINT          PRINT       PRINT
-  "abc"       "acb"            "bac"       "bca"          "cab"       "cba"
-*/
+//method: 2 without permutation function
+
+#include <unistd.h>
+
+int main(int ac, char **av)
+{
+    char *s;
+    int   len;
+    int   i, j;
+    char  tmp;
+
+    if (ac != 2)
+        return (1);
+    s = av[1];
+
+    /* length */
+    len = 0;
+    while (s[len])
+        len++;
+    if (len == 0)
+        return (0);
+
+    /* sort s ascending so we start from first permutation */
+    i = 0;
+    while (i < len)
+    {
+        j = i + 1;
+        while (j < len)
+        {
+            if (s[i] > s[j])
+            {
+                tmp = s[i];
+                s[i] = s[j];
+                s[j] = tmp;
+            }
+            j++;
+        }
+        i++;
+    }
+
+    /* generate all permutations in lexicographic order */
+    while (1)
+    {
+        write(1, s, len);
+        write(1, "\n", 1);
+
+        /* find rightmost i such that s[i] < s[i+1] */
+        i = len - 2;
+        while (i >= 0 && s[i] >= s[i + 1])
+            i--;
+        if (i < 0)           /* no more permutations */
+            break;
+
+        /* find rightmost j > i with s[j] > s[i] */
+        j = len - 1;
+        while (s[j] <= s[i])
+            j--;
+
+        /* swap s[i], s[j] */
+        tmp = s[i];
+        s[i] = s[j];
+        s[j] = tmp;
+
+        /* reverse tail s[i+1..len-1] */
+        int l = i + 1;
+        int r = len - 1;
+        while (l < r)
+        {
+            tmp = s[l];
+            s[l] = s[r];
+            s[r] = tmp;
+            l++;
+            r--;
+        }
+    }
+    return (0);
+}

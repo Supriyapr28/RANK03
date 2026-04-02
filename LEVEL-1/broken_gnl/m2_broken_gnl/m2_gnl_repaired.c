@@ -1,3 +1,5 @@
+//correct soln
+
 #include "gnl.h"
 
 char	*ft_strchr(char *s, int c)
@@ -87,30 +89,21 @@ char	*get_next_line(int fd)
 		}
 		read_ret = read(fd, b, BUFFER_SIZE);
 		if (read_ret < 0)
-		{
-			free(ret);
-			return (NULL);
-		}
+			return (free(ret), NULL);
 		b[read_ret] = '\0';
 		tmp = ft_strchr(b, '\n');
 	}
 	if (tmp)
 	{
 		if (!str_append_mem(&ret, b, tmp - b + 1))
-		{
-			free(ret);
-			return (NULL);
-		}
+			return (free(ret), NULL);
 		ft_memmove(b, tmp + 1, ft_strlen(tmp + 1) + 1);
 	}
 	else
 	{
 		b[0] = '\0';
 		if (!ret || !*ret)
-		{
-			free(ret);
-			return (NULL);
-		}
+			return (free(ret), NULL);
 	}
 	return (ret);
 }
